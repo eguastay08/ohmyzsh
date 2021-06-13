@@ -73,15 +73,23 @@ prompt_segment() {
 }
 
 # End the prompt, closing any open segments
+#prompt_end() {
+#  if [[ -n $CURRENT_BG ]]; then
+#    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+#  else
+#    echo -n "%{%k%}"
+#  fi
+#  echo -n "%{%f%}"
+#  CURRENT_BG=''
+#}
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
     echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
   else
     echo -n "%{%k%}"
   fi
-  echo -n "%{%f%}"
-  CURRENT_BG=''
-}
+  echo -n "%{%f%}\n $fg[green]%}└──╼ ➜ %{$fg_bold[grre]%}%{$reset_color%}"
+  }
 
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
@@ -89,7 +97,7 @@ prompt_end() {
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
   if [[ "$USERNAME" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)%n@%m"
+    prompt_segment black default "%(!.%{%F{green}%}.)%n@%m"
   fi
 }
 
@@ -204,7 +212,7 @@ prompt_hg() {
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue $CURRENT_FG '%~'
+  prompt_segment blue $CURRENT_FG '%(4~|.../%3~|%~)'
 }
 
 # Virtualenv: current working virtualenv
@@ -223,7 +231,7 @@ prompt_status() {
   local -a symbols
 
   [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{green}%}⚡"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
 
   [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
@@ -255,5 +263,4 @@ build_prompt() {
   prompt_hg
   prompt_end
 }
-
-PROMPT='%{%f%b%k%}$(build_prompt) '
+PROMPT='%{%f%b%k%}$(build_prompt)'
